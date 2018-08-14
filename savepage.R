@@ -129,7 +129,7 @@ return(datafin)
 cutvideo<-function(filename,fps,fmt="jpeg") {
   unlink('photos', recursive=TRUE)
   dir.create(file.path("photos"), showWarnings = FALSE)
-  cmd=paste0("ffmpeg -i \"",filename,"\" -r ",fps," photos/output_%05d.",fmt)
+  cmd=paste0("ffmpeg -i \"",filename,"\" -qscale:v 1 ","-r ",fps," photos/output_%05d.",fmt)
   system(cmd)
 }
 
@@ -164,6 +164,7 @@ faceplusplus_e<-function(img.path,apikey="i6aAp-TZNec1-HjPlzJS1oAaEcdRUHxi",seqk
   library("httr")
   library("imager")
   library("stringr")
+  options(warn=-1)
   
   a<-POST("https://api-us.faceplusplus.com/facepp/v3/detect",
           body=list(
@@ -172,8 +173,8 @@ faceplusplus_e<-function(img.path,apikey="i6aAp-TZNec1-HjPlzJS1oAaEcdRUHxi",seqk
             "image_file" =  upload_file(img.path),
             "return_landmark" = "1",
             "return_attributes" = "gender,age,smiling,headpose,facequality,blur,eyestatus,emotion,ethnicity,beauty,mouthstatus,eyegaze"
-          ),
-          verbose()
+          )
+          # ,verbose()
   )
   output<-httr::content(a)
   df=unlist(output$faces, use.names=TRUE)
@@ -184,10 +185,30 @@ faceplusplus_e<-function(img.path,apikey="i6aAp-TZNec1-HjPlzJS1oAaEcdRUHxi",seqk
     fin=data.frame("sadness"=NA,"neutral"=NA,"disgust"=NA,"anger"=NA,
                "surprise"=NA,"fear"=NA,"happiness"=NA)
   }
+  options(warn=0)
+  
   return(fin)
 }
 
-
+#' A function the attitude of a words
+#' @param txt the words to be analysis
+#' @return Reture vector
+#' @keywords basic
+#' @author Xia Yiwei
+#' @export
+#' @examples
+#'
+wordssent<-function(txt) {
+  # p<-POST('https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=QoGc7GNIS44rKlQs9dao5dzY&client_secret=sv9s8XSEyFNs7mlAqIu8bdjDAShv2Gy9')
+  # accesstoken<-content(p)$access_token
+  a<-POST("https://aip.baidubce.com/rpc/2.0/nlp/v1/sentiment_classify?charset=UTF-8&access_token=24.08220401022b92b9ced118c740cae303.2592000.1536827581.282335-11234234",
+          add_headers(.headers=c('Content-Type'='application/json')),
+          body=list(text=txt),
+          encode = "json"
+  )
+  output<-unlist(content(a)$items) 
+  return(output)
+}
 ###############################################################
 #test Zone
 #####################################################
@@ -202,6 +223,7 @@ cutvideo(filename="test.flv",fps=12)
 transformate("test.flv",newformat = "mp4")
 
 ###############
+#make temp as 
 
 temp<-data.frame("time"=NA,"sadness"=NA,"neutral"=NA,"disgust"=NA,"anger"=NA,
                  "surprise"=NA,"fear"=NA,"happiness"=NA)
@@ -216,3 +238,70 @@ for (i in dir(path)) {
   tobeupdate<-c(time=nam,a)
   temp<-rbind(temp,tobeupdate)
 }
+
+
+###############
+#plot the data
+
+library("ggplot2")
+library("tidyr")
+
+
+temp<-temp[!is.na(temp$time),]
+
+temp %>%
+  mutate(sadness=as.numeric(sadness)) %>%
+  mutate(neutral=as.numeric(neutral)) %>%
+  mutate(happiness=as.numeric(happiness)) %>%
+  mutate(disgust=as.numeric(disgust)) %>%
+  mutate(anger=as.numeric(anger)) %>%
+  mutate(surprise=as.numeric(surprise)) %>%
+  mutate(fear=as.numeric(fear)) %>%
+  #gather(emotion,value,sadness,neutral,happiness,disgust,anger,surprise,fear) %>%
+  ggplot() +
+  geom_area(aes(x=rep(1:3005,7),y=value,colour=emotion),position="stack",alpha=0.5)+
+  theme_classic()
+
+
+###############################################################
+#test Zone 2
+#####################################################
+setwd("C:/Users/xiayi_000/OneDrive/主播视频分析/test")
+cutvideo(filename= "录制-不给摘的小橙花-20180814122022-926.flv",fps=12)
+
+
+temp2<-data.frame("time"=NA,"sadness"=NA,"neutral"=NA,"disgust"=NA,"anger"=NA,
+                 "surprise"=NA,"fear"=NA,"happiness"=NA)
+fps=12
+path<-"C:/Users/xiayi_000/OneDrive/主播视频分析/test/photos"
+setwd(path)
+
+for (i in dir(path)) {
+  a<-faceplusplus_e(i)
+  nam=paste0(as.numeric(str_extract(i,"[0-9]+"))%/%fps,"_",
+             as.numeric(str_extract(i,"[0-9]+"))%%fps) 
+  tobeupdate<-c(time=nam,a)
+  temp2<-rbind(temp2,tobeupdate)
+}
+
+
+temp2 %>%
+  mutate(sadness=as.numeric(sadness)) %>%
+  mutate(neutral=as.numeric(neutral)) %>%
+  mutate(happiness=as.numeric(happiness)) %>%
+  mutate(disgust=as.numeric(disgust)) %>%
+  mutate(anger=as.numeric(anger)) %>%
+  mutate(surprise=as.numeric(surprise)) %>%
+  mutate(fear=as.numeric(fear)) %>%
+  #gather(emotion,value,sadness,neutral,happiness,disgust,anger,surprise,fear) %>%
+  ggplot() +
+  geom_line(aes(x=1:1719,y=happiness))+
+  theme_classic()
+
+
+
+
+
+
+
+

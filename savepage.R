@@ -126,10 +126,10 @@ return(datafin)
 #' @export
 #' @examples
 #'
-cutvideo<-function(filename,fps,fmt="jpeg") {
+cutvideo<-function(filename,fps,fmt="jpeg",crop="") {
   unlink('photos', recursive=TRUE)
   dir.create(file.path("photos"), showWarnings = FALSE)
-  cmd=paste0("ffmpeg -i \"",filename,"\" -qscale:v 1 ","-r ",fps," photos/output_%05d.",fmt)
+  cmd=paste0("ffmpeg -i \"",filename,"\" -qscale:v 1 ","-r ",fps," photos/output_%05d.",fmt," ",crop)
   system(cmd)
 }
 
@@ -228,7 +228,9 @@ path<-"C:/视频分析/photos"
 setwd(path)
 
 for (i in 24698:length(dir(path))) {
-  a<-faceplusplus_e(dir(path)[i])
+  a<-faceplusplus_e(dir(path)[i],
+                    apikey="i6aAp-TZNec1-HjPlzJS1oAaEcdRUHxi",
+                    seqkey= "dwobv2uNCA0MvUNTNwIiEmqQEn8jGGLR")
   nam=paste0(as.numeric(str_extract(i,"[0-9]+"))%/%fps,"_",
              as.numeric(str_extract(i,"[0-9]+"))%%fps) 
   face_pass[[i]]<-a

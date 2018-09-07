@@ -129,7 +129,7 @@ return(datafin)
 cutvideo<-function(filename,fps,fmt="jpeg",crop="") {
   unlink('photos', recursive=TRUE)
   dir.create(file.path("photos"), showWarnings = FALSE)
-  cmd=paste0("ffmpeg -i \"",filename,"\" -qscale:v 1 ","-r ",fps," photos/output_%05d.",fmt," ",crop)
+  cmd=paste0("ffmpeg -i \"",filename,"\" -qscale:v 1 "," ",crop," ","-r ",fps," photos/output_%05d.",fmt)
   system(cmd)
 }
 
@@ -217,8 +217,9 @@ wordssent<-function(txt) {
 
 
 
-setwd("C:/Users/xiayi_000/OneDrive/主播视频分析/test")
-cutvideo(filename="录制-PASSさん-20180903232233-140.flv",fps=24)
+setwd("C:/temp")
+cutvideo(filename="录制-李兰陵-20180905232156-170.flv",fps=24,crop="-filter:v \"crop=80:60:200:100\" ")
+
 
 ###############
 #make temp as 

@@ -178,16 +178,16 @@ faceplusplus_e<-function(img.path,apikey="i6aAp-TZNec1-HjPlzJS1oAaEcdRUHxi",seqk
   )
   output<-httr::content(a)
   df=unlist(output$faces, use.names=TRUE)
-  if (length(df)!=0) {
-    fin=df[str_detect(names(df),"emotion")]
-    names(fin)<-str_replace(names(fin),"attributes.emotion.","")
-  } else {
-    fin=data.frame("sadness"=NA,"neutral"=NA,"disgust"=NA,"anger"=NA,
-               "surprise"=NA,"fear"=NA,"happiness"=NA)
-  }
-  options(warn=0)
+  # if (length(df)!=0) {
+  #   fin=df[str_detect(names(df),"emotion")]
+  #   names(fin)<-str_replace(names(fin),"attributes.emotion.","")
+  # } else {
+  #   fin=data.frame("sadness"=NA,"neutral"=NA,"disgust"=NA,"anger"=NA,
+  #              "surprise"=NA,"fear"=NA,"happiness"=NA)
+  # }
+  # options(warn=0)
   
-  return(fin)
+  return(df)
 }
 
 #' A function the attitude of a words
@@ -213,93 +213,89 @@ wordssent<-function(txt) {
 #test Zone
 #####################################################
 
-# setwd("C:/Users/xiayi_000/OneDrive/主播视频分析/test")
-# page<-savehtml(sec=600,rmid=5096,visitid="anwxaam4gnb4")
 
 
-setwd("C:/Users/xiayi_000/Documents/弹幕姬")
-setwd("C:/Users/xiayi_000/OneDrive/主播视频分析/测试视频")
-cutvideo(filename="test.flv",fps=12)
-transformate("test.flv",newformat = "mp4")
+
+
+setwd("C:/Users/xiayi_000/OneDrive/主播视频分析/test")
+cutvideo(filename="录制-PASSさん-20180903232233-140.flv",fps=24)
 
 ###############
 #make temp as 
-
-temp<-data.frame("time"=NA,"sadness"=NA,"neutral"=NA,"disgust"=NA,"anger"=NA,
-                 "surprise"=NA,"fear"=NA,"happiness"=NA)
-fps=12
-path<-"C:/Users/xiayi_000/OneDrive/主播视频分析/测试视频/photos"
+face_pass<-list()
+fps=24
+path<-"C:/视频分析/photos"
 setwd(path)
 
-for (i in dir(path)) {
-  a<-faceplusplus_e(i)
+for (i in 24698:length(dir(path))) {
+  a<-faceplusplus_e(dir(path)[i])
   nam=paste0(as.numeric(str_extract(i,"[0-9]+"))%/%fps,"_",
              as.numeric(str_extract(i,"[0-9]+"))%%fps) 
-  tobeupdate<-c(time=nam,a)
-  temp<-rbind(temp,tobeupdate)
+  face_pass[[i]]<-a
+  if(i%%1000==0) saveRDS(face_pass,file = "录制-PASSさん-20180903-232233-140-24.rds")
 }
 
-
-###############
-#plot the data
-
-library("ggplot2")
-library("tidyr")
-
-
-temp<-temp[!is.na(temp$time),]
-
-temp %>%
-  mutate(sadness=as.numeric(sadness)) %>%
-  mutate(neutral=as.numeric(neutral)) %>%
-  mutate(happiness=as.numeric(happiness)) %>%
-  mutate(disgust=as.numeric(disgust)) %>%
-  mutate(anger=as.numeric(anger)) %>%
-  mutate(surprise=as.numeric(surprise)) %>%
-  mutate(fear=as.numeric(fear)) %>%
-  #gather(emotion,value,sadness,neutral,happiness,disgust,anger,surprise,fear) %>%
-  ggplot() +
-  geom_area(aes(x=rep(1:3005,7),y=value,colour=emotion),position="stack",alpha=0.5)+
-  theme_classic()
-
-
-###############################################################
-#test Zone 2
-#####################################################
-setwd("C:/Users/xiayi_000/OneDrive/主播视频分析/test")
-cutvideo(filename= "录制-不给摘的小橙花-20180814122022-926.flv",fps=12)
-
-
-temp2<-data.frame("time"=NA,"sadness"=NA,"neutral"=NA,"disgust"=NA,"anger"=NA,
-                 "surprise"=NA,"fear"=NA,"happiness"=NA)
-fps=12
-path<-"C:/Users/xiayi_000/OneDrive/主播视频分析/test/photos"
-setwd(path)
-
-for (i in dir(path)) {
-  a<-faceplusplus_e(i)
-  nam=paste0(as.numeric(str_extract(i,"[0-9]+"))%/%fps,"_",
-             as.numeric(str_extract(i,"[0-9]+"))%%fps) 
-  tobeupdate<-c(time=nam,a)
-  temp2<-rbind(temp2,tobeupdate)
-}
-
-
-temp2 %>%
-  mutate(sadness=as.numeric(sadness)) %>%
-  mutate(neutral=as.numeric(neutral)) %>%
-  mutate(happiness=as.numeric(happiness)) %>%
-  mutate(disgust=as.numeric(disgust)) %>%
-  mutate(anger=as.numeric(anger)) %>%
-  mutate(surprise=as.numeric(surprise)) %>%
-  mutate(fear=as.numeric(fear)) %>%
-  #gather(emotion,value,sadness,neutral,happiness,disgust,anger,surprise,fear) %>%
-  ggplot() +
-  geom_line(aes(x=1:1719,y=happiness))+
-  theme_classic()
-
-
-
+# 
+# ###############
+# #plot the data
+# 
+# library("ggplot2")
+# library("tidyr")
+# 
+# 
+# temp<-temp[!is.na(temp$time),]
+# 
+# temp %>%
+#   mutate(sadness=as.numeric(sadness)) %>%
+#   mutate(neutral=as.numeric(neutral)) %>%
+#   mutate(happiness=as.numeric(happiness)) %>%
+#   mutate(disgust=as.numeric(disgust)) %>%
+#   mutate(anger=as.numeric(anger)) %>%
+#   mutate(surprise=as.numeric(surprise)) %>%
+#   mutate(fear=as.numeric(fear)) %>%
+#   #gather(emotion,value,sadness,neutral,happiness,disgust,anger,surprise,fear) %>%
+#   ggplot() +
+#   geom_area(aes(x=rep(1:3005,7),y=value,colour=emotion),position="stack",alpha=0.5)+
+#   theme_classic()
+# 
+# 
+# ###############################################################
+# #test Zone 2
+# #####################################################
+# setwd("C:/Users/xiayi_000/OneDrive/主播视频分析/test")
+# cutvideo(filename= "录制-不给摘的小橙花-20180814122022-926.flv",fps=12)
+# 
+# 
+# temp2<-data.frame("time"=NA,"sadness"=NA,"neutral"=NA,"disgust"=NA,"anger"=NA,
+#                  "surprise"=NA,"fear"=NA,"happiness"=NA)
+# fps=12
+# path<-"C:/Users/xiayi_000/OneDrive/主播视频分析/test/photos"
+# setwd(path)
+# 
+# for (i in dir(path)) {
+#   a<-faceplusplus_e(i)
+#   nam=paste0(as.numeric(str_extract(i,"[0-9]+"))%/%fps,"_",
+#              as.numeric(str_extract(i,"[0-9]+"))%%fps) 
+#   tobeupdate<-c(time=nam,a)
+#   temp2<-rbind(temp2,tobeupdate)
+# }
+# 
+# 
+# temp2 %>%
+#   mutate(sadness=as.numeric(sadness)) %>%
+#   mutate(neutral=as.numeric(neutral)) %>%
+#   mutate(happiness=as.numeric(happiness)) %>%
+#   mutate(disgust=as.numeric(disgust)) %>%
+#   mutate(anger=as.numeric(anger)) %>%
+#   mutate(surprise=as.numeric(surprise)) %>%
+#   mutate(fear=as.numeric(fear)) %>%
+#   #gather(emotion,value,sadness,neutral,happiness,disgust,anger,surprise,fear) %>%
+#   ggplot() +
+#   geom_line(aes(x=1:1719,y=happiness))+
+#   theme_classic()
+# 
+# wordssent("爱酱最可爱")
+# 
 
 
 

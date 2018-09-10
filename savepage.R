@@ -228,19 +228,22 @@ fps=24
 path<-"C:/视频分析/photos"
 setwd(path)
 
-for (i in 32680:length(dir(path))) {
-  a<-tryCatch(
-    faceplusplus_e(dir(path)[i]),
-    error=function(error_message) {
-      Sys.sleep(1)
-      retry(times = 3)
-    }
+for (i in 34004:length(dir(path))) {
+ a <- NULL
+ attempt <- 1
+ while( is.null(a) && attempt <= 3 ) {
+  attempt <- attempt + 1
+   try(
+     a <- faceplusplus_e(dir(path)[i])
   )
   nam=paste0(as.numeric(str_extract(i,"[0-9]+"))%/%fps,"_",
              as.numeric(str_extract(i,"[0-9]+"))%%fps) 
   face_pass[[i]]<-a
   if(i%%1000==0) saveRDS(face_pass,file = "C:/视频分析/录制-PASSさん-20180903-232233-140-24.rds")
+ } 
 }
+
+# face_pass<-readRDS("C:/视频分析/录制-PASSさん-20180903-232233-140-24.rds")
 
 # 
 # ###############

@@ -129,7 +129,7 @@ return(datafin)
 cutvideo<-function(filename,fps,fmt="jpeg",crop="") {
   unlink('photos', recursive=TRUE)
   dir.create(file.path("photos"), showWarnings = FALSE)
-  cmd=paste0("ffmpeg -i \"",filename,"\" -qscale:v 1 "," ",crop," ","-r ",fps," photos/output_%05d.",fmt)
+  cmd=paste0("ffmpeg -i \"",filename,"\" -qscale:v 1 ","-r ",fps," ",crop," photos/output_%05d.",fmt)
   system(cmd)
 }
 
@@ -228,7 +228,7 @@ fps=24
 path<-"C:/视频分析/photos"
 setwd(path)
 
-for (i in 34004:length(dir(path))) {
+for (i in 80076:length(dir(path))) {
  a <- NULL
  attempt <- 1
  while( is.null(a) && attempt <= 3 ) {
@@ -242,6 +242,11 @@ for (i in 34004:length(dir(path))) {
   if(i%%1000==0) saveRDS(face_pass,file = "C:/视频分析/录制-PASSさん-20180903-232233-140-24.rds")
  } 
 }
+
+# lentha<-vector()
+# for(i in 1:38759) {
+#   lentha[i]<-length(face_pass[[i]])
+# } 
 
 # face_pass<-readRDS("C:/视频分析/录制-PASSさん-20180903-232233-140-24.rds")
 

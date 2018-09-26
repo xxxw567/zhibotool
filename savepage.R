@@ -142,10 +142,10 @@ cutvideo<-function(filename,fps,fmt="jpeg",crop="") {
 #' @export
 #' @examples
 #'
-transformate<-function(filename,newformat) {
-  unlink('convout', recursive=TRUE)
-  dir.create(file.path("convout"), showWarnings = FALSE)
-  cmd=paste0("ffmpeg -i ",filename, " convout/output.",newformat)
+cutvideo<-function(filename,fps,fmt="jpeg",crop="") {
+  unlink('photos', recursive=TRUE)
+  dir.create(file.path("photos"), showWarnings = FALSE)
+  cmd=paste0("ffmpeg -i \"",filename,"\" -qscale:v 1 ","-r ",fps," ",crop," photos/output_%05d.",fmt," ")
   system(cmd)
 }
 
